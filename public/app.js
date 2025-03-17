@@ -20,6 +20,75 @@ const uploadBtn = document.querySelector('.upload-btn');
 const fileInput = document.querySelector('#nft-upload');
 const periodButtons = document.querySelectorAll('.period-btn');
 
+// Функция для показа уведомления
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Функция для показа подтверждения
+function showConfirmation(message, onConfirm, onCancel) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <p>${message}</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel">Отмена</button>
+                <button class="modal-btn confirm">Подтвердить</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    modal.querySelector('.confirm').addEventListener('click', () => {
+        modal.remove();
+        onConfirm && onConfirm();
+    });
+    
+    modal.querySelector('.cancel').addEventListener('click', () => {
+        modal.remove();
+        onCancel && onCancel();
+    });
+}
+
+// Функция для показа формы ввода
+function showInputForm(title, message, onSubmit, onCancel) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>${title}</h3>
+            <p>${message}</p>
+            <input type="text" class="modal-input" placeholder="Введите значение">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel">Отмена</button>
+                <button class="modal-btn confirm">Подтвердить</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    modal.querySelector('.confirm').addEventListener('click', () => {
+        const value = modal.querySelector('.modal-input').value;
+        modal.remove();
+        onSubmit && onSubmit(value);
+    });
+    
+    modal.querySelector('.cancel').addEventListener('click', () => {
+        modal.remove();
+        onCancel && onCancel();
+    });
+}
+
 // Функция для переключения секций
 function switchSection(sectionId) {
     // Скрываем все секции
@@ -145,11 +214,9 @@ function buyNFT(button) {
     const price = item.querySelector('.market-price').textContent;
     
     // Показываем подтверждение
-    tgApp.showConfirm(`Вы уверены, что хотите купить "${name}" за ${price}?`, (confirmed) => {
-        if (confirmed) {
-            // Здесь будет логика покупки
-            tgApp.showAlert(`Поздравляем! Вы приобрели "${name}" за ${price}`);
-        }
+    showConfirmation(`Вы уверены, что хотите купить "${name}" за ${price}?`, () => {
+        // Здесь будет логика покупки
+        showNotification(`Поздравляем! Вы приобрели "${name}" за ${price}`, 'success');
     });
 }
 
@@ -161,19 +228,10 @@ function placeBid(button) {
     const name = item.querySelector('.auction-name').textContent;
     const currentBid = item.querySelector('.bid-amount').textContent;
     
-    // Показываем попап для ввода ставки
-    tgApp.showPopup({
-        title: 'Сделать ставку',
-        message: `Текущая ставка: ${currentBid}`,
-        buttons: [
-            {id: 'cancel', type: 'cancel', text: 'Отмена'},
-            {id: 'bid', type: 'default', text: 'Сделать ставку'}
-        ]
-    }, (buttonId) => {
-        if (buttonId === 'bid') {
-            // Здесь будет логика размещения ставки
-            tgApp.showAlert(`Ваша ставка на "${name}" принята!`);
-        }
+    // Показываем форму для ввода ставки
+    showInputForm('Сделать ставку', `Текущая ставка: ${currentBid}`, (value) => {
+        // Здесь будет логика размещения ставки
+        showNotification(`Ваша ставка на "${name}" принята!`, 'success');
     });
 }
 
@@ -184,20 +242,23 @@ function createNFT() {
     const price = document.getElementById('nft-price').value;
     
     if (!name || !description || !price || !fileInput.files[0]) {
-        tgApp.showAlert('Пожалуйста, заполните все поля и загрузите изображение');
+        showNotification('Пожалуйста, заполните все поля и загрузите изображение', 'error');
         return;
     }
     
     // Показываем индикатор загрузки
-    tgApp.showProgress();
+    const loading = document.createElement('div');
+    loading.className = 'loading';
+    loading.innerHTML = '<div class="spinner"></div>';
+    document.body.appendChild(loading);
     
     // Имитируем процесс создания NFT
     setTimeout(() => {
         // Скрываем индикатор загрузки
-        tgApp.hideProgress();
+        loading.remove();
         
         // Показываем успешное сообщение
-        tgApp.showAlert('NFT успешно создан!');
+        showNotification('NFT успешно создан!', 'success');
         
         // Очищаем форму
         document.getElementById('nft-name').value = '';
@@ -218,6 +279,61 @@ function createNFT() {
         // Переключаемся на вкладку кошелька
         switchSection('wallet-section');
     }, 2000);
+}
+
+// Функция для показа криптовалютных активов
+function showCryptoAssets() {
+    showNotification('Функция показа криптовалютных активов в разработке', 'info');
+}
+
+// Функция для показа коллекции NFT
+function showNFTCollection() {
+    showNotification('Функция показа коллекции NFT в разработке', 'info');
+}
+
+// Функция для показа маркета
+function showMarket() {
+    switchSection('market-section');
+}
+
+// Функция для показа аукционов
+function showAuctions() {
+    switchSection('auction-section');
+}
+
+// Функция для показа создания NFT
+function showCreateNFT() {
+    switchSection('add-nft-section');
+}
+
+// Функция для показа истории транзакций
+function showTransactionHistory() {
+    showNotification('Функция показа истории транзакций в разработке', 'info');
+}
+
+// Функция для показа партнерской программы
+function showReferralProgram() {
+    showNotification('Функция показа партнерской программы в разработке', 'info');
+}
+
+// Функция для показа автоматизации
+function showAutomation() {
+    showNotification('Функция показа автоматизации в разработке', 'info');
+}
+
+// Функция для показа настроек
+function showSettings() {
+    switchSection('settings-section');
+}
+
+// Функция для показа опций пополнения
+function showDepositOptions() {
+    showNotification('Функция пополнения в разработке', 'info');
+}
+
+// Функция для показа опций вывода
+function showWithdrawOptions() {
+    showNotification('Функция вывода в разработке', 'info');
 }
 
 // Добавляем обработчики событий
@@ -252,26 +368,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Обработчики для кнопок избранного
     favoriteButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
+        btn.addEventListener('click', () => {
             toggleFavorite(btn);
         });
     });
     
-    // Обработчики для радио-кнопок типа продажи
+    // Обработчики для переключателей типа продажи
     saleTypeRadios.forEach(radio => {
         radio.addEventListener('change', toggleSaleType);
     });
-    
-    // Обработчик для кнопки загрузки файла
-    if (uploadBtn) {
-        uploadBtn.addEventListener('click', handleFileUpload);
-    }
-    
-    // Обработчик для изменения выбранного файла
-    if (fileInput) {
-        fileInput.addEventListener('change', displaySelectedFile);
-    }
     
     // Обработчики для кнопок покупки
     document.querySelectorAll('.buy-btn').forEach(btn => {
@@ -287,272 +392,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
+    // Обработчики для кнопки загрузки файла
+    uploadBtn.addEventListener('click', handleFileUpload);
+    
+    // Обработчик для выбора файла
+    fileInput.addEventListener('change', displaySelectedFile);
+    
     // Обработчик для кнопки создания NFT
-    const createNftBtn = document.querySelector('.create-nft-btn');
-    if (createNftBtn) {
-        createNftBtn.addEventListener('click', createNFT);
-    }
+    document.querySelector('.create-nft-btn').addEventListener('click', createNFT);
     
-    // Обработчики для кнопок пополнения и вывода
-    document.querySelectorAll('.action-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const action = btn.textContent.trim().includes('Пополнить') ? 'deposit' : 'withdraw';
-            
-            if (action === 'deposit') {
-                tgApp.showPopup({
-                    title: 'Пополнение кошелька',
-                    message: 'Выберите способ пополнения:',
-                    buttons: [
-                        {id: 'ton', type: 'default', text: 'TON'},
-                        {id: 'usdt', type: 'default', text: 'USDT'},
-                        {id: 'rub', type: 'default', text: 'RUB'},
-                        {id: 'cancel', type: 'cancel', text: 'Отмена'}
-                    ]
-                });
-            } else {
-                tgApp.showPopup({
-                    title: 'Вывод средств',
-                    message: 'Выберите валюту для вывода:',
-                    buttons: [
-                        {id: 'ton', type: 'default', text: 'TON'},
-                        {id: 'usdt', type: 'default', text: 'USDT'},
-                        {id: 'cancel', type: 'cancel', text: 'Отмена'}
-                    ]
-                });
-            }
-        });
-    });
-    
-    // Настраиваем главную кнопку Telegram
-    tgApp.MainButton.setParams({
-        text: 'ОТКРЫТЬ КОШЕЛЁК',
-        color: '#0088cc'
-    });
-    
-    // Показываем главную кнопку при необходимости
-    // tgApp.MainButton.show();
-    
-    // Обработчик для главной кнопки
-    tgApp.MainButton.onClick(() => {
-        switchSection('wallet-section');
-    });
-    
-    // Инициализируем первую секцию
-    switchSection('wallet-section');
-    
-    console.log('Telegram Mini App для криптовалютного и NFT-рынка инициализирован!');
-});
-
-// Обработчик для меню
-document.addEventListener('DOMContentLoaded', () => {
-    // Обработчики для пунктов меню
-    const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => {
+    // Обработчики для меню активов
+    document.querySelectorAll('.menu-item').forEach(item => {
         item.addEventListener('click', () => {
-            const menuLabel = item.querySelector('.menu-label').textContent.trim();
-            
-            // Обрабатываем клик на пункт меню в зависимости от его названия
-            switch (menuLabel) {
-                case 'Криптовалюты':
-                    showCryptoAssets();
-                    break;
-                case 'NFT-коллекция':
-                    showNFTCollection();
-                    break;
-                case 'Маркет':
-                    showMarket();
-                    break;
-                case 'Аукционы':
-                    showAuctions();
-                    break;
-                case 'Создать NFT':
-                    showCreateNFT();
-                    break;
-                case 'История транзакций':
-                    showTransactionHistory();
-                    break;
-                case 'Партнёрская программа':
-                    showReferralProgram();
-                    break;
-                case 'Автоматизация':
-                    showAutomation();
-                    break;
-                case 'Настройки':
-                    showSettings();
-                    break;
-                default:
-                    // Для неизвестных пунктов меню показываем уведомление
-                    tgApp.showAlert(`Функция "${menuLabel}" в разработке`);
+            const action = item.dataset.action;
+            if (action) {
+                switch(action) {
+                    case 'crypto':
+                        showCryptoAssets();
+                        break;
+                    case 'nft':
+                        showNFTCollection();
+                        break;
+                    case 'market':
+                        showMarket();
+                        break;
+                    case 'auction':
+                        showAuctions();
+                        break;
+                    case 'create':
+                        showCreateNFT();
+                        break;
+                    case 'history':
+                        showTransactionHistory();
+                        break;
+                    case 'referral':
+                        showReferralProgram();
+                        break;
+                    case 'automation':
+                        showAutomation();
+                        break;
+                    case 'settings':
+                        showSettings();
+                        break;
+                    case 'deposit':
+                        showDepositOptions();
+                        break;
+                    case 'withdraw':
+                        showWithdrawOptions();
+                        break;
+                }
             }
         });
     });
-    
-    // Обработчики для кнопок пополнения и вывода
-    const actionButtons = document.querySelectorAll('.action-btn');
-    actionButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const action = btn.textContent.trim().includes('Пополнить') ? 'deposit' : 'withdraw';
-            
-            if (action === 'deposit') {
-                showDepositOptions();
-            } else {
-                showWithdrawOptions();
-            }
-        });
-    });
-    
-    // Обработчики для социальных ссылок
-    const socialLinks = document.querySelectorAll('.social-link');
-    socialLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const platform = link.querySelector('i').className;
-            
-            if (platform.includes('telegram')) {
-                tgApp.openTelegramLink('https://t.me/ton_nft_market');
-            } else if (platform.includes('twitter')) {
-                tgApp.openLink('https://twitter.com/ton_nft_market');
-            } else if (platform.includes('discord')) {
-                tgApp.openLink('https://discord.gg/ton_nft_market');
-            }
-        });
-    });
-    
-    // Настраиваем главную кнопку Telegram
-    tgApp.MainButton.setParams({
-        text: 'ОТКРЫТЬ КОШЕЛЁК',
-        color: '#0088cc'
-    });
-    
-    // Обработчик для главной кнопки
-    tgApp.MainButton.onClick(() => {
-        tgApp.showAlert('Кошелёк уже открыт');
-    });
-    
-    console.log('Telegram Mini App для криптовалютного и NFT-рынка инициализирован!');
-});
-
-// Функции для обработки пунктов меню
-
-// Показать криптовалютные активы
-function showCryptoAssets() {
-    tgApp.showPopup({
-        title: 'Криптовалютные активы',
-        message: 'Ваши криптовалютные активы:\n\n• TON: 125.45 ($249.64)\n• USDT: 50.00 ($50.00)',
-        buttons: [
-            {id: 'deposit', type: 'default', text: 'Пополнить'},
-            {id: 'withdraw', type: 'default', text: 'Вывести'},
-            {id: 'close', type: 'cancel', text: 'Закрыть'}
-        ]
-    }, (buttonId) => {
-        if (buttonId === 'deposit') {
-            showDepositOptions();
-        } else if (buttonId === 'withdraw') {
-            showWithdrawOptions();
-        }
-    });
-}
-
-// Показать NFT-коллекцию
-function showNFTCollection() {
-    tgApp.showPopup({
-        title: 'NFT-коллекция',
-        message: 'У вас 12 NFT в коллекции',
-        buttons: [
-            {id: 'view', type: 'default', text: 'Просмотреть'},
-            {id: 'close', type: 'cancel', text: 'Закрыть'}
-        ]
-    }, (buttonId) => {
-        if (buttonId === 'view') {
-            tgApp.showAlert('Функция просмотра NFT в разработке');
-        }
-    });
-}
-
-// Показать маркет
-function showMarket() {
-    switchSection('market-section');
-}
-
-// Показать аукционы
-function showAuctions() {
-    switchSection('auction-section');
-}
-
-// Показать создание NFT
-function showCreateNFT() {
-    switchSection('add-nft-section');
-}
-
-// Показать историю транзакций
-function showTransactionHistory() {
-    tgApp.showPopup({
-        title: 'История транзакций',
-        message: 'Последние транзакции:\n\n• Получено: +10.5 TON (15.03.2023)\n• Отправлено: -5.0 TON (12.03.2023)\n• Покупка NFT: -12.3 TON (10.03.2023)',
-        buttons: [{type: 'close', text: 'Закрыть'}]
-    });
-}
-
-// Показать партнёрскую программу
-function showReferralProgram() {
-    tgApp.showPopup({
-        title: 'Партнёрская программа',
-        message: 'Приглашайте друзей и получайте 10% от их комиссий!\n\nВаша реферальная ссылка:\nhttps://t.me/ton_nft_market_bot?start=ref123456',
-        buttons: [
-            {id: 'copy', type: 'default', text: 'Скопировать ссылку'},
-            {id: 'share', type: 'default', text: 'Поделиться'},
-            {id: 'close', type: 'cancel', text: 'Закрыть'}
-        ]
-    }, (buttonId) => {
-        if (buttonId === 'copy') {
-            tgApp.showAlert('Ссылка скопирована в буфер обмена');
-        } else if (buttonId === 'share') {
-            tgApp.showAlert('Функция "Поделиться" в разработке');
-        }
-    });
-}
-
-// Показать автоматизацию
-function showAutomation() {
-    tgApp.showAlert('Функции автоматизации в разработке');
-}
-
-// Показать настройки
-function showSettings() {
-    switchSection('settings-section');
-}
-
-// Показать опции пополнения
-function showDepositOptions() {
-    tgApp.showPopup({
-        title: 'Пополнение кошелька',
-        message: 'Выберите способ пополнения:',
-        buttons: [
-            {id: 'ton', type: 'default', text: 'TON'},
-            {id: 'usdt', type: 'default', text: 'USDT'},
-            {id: 'rub', type: 'default', text: 'RUB'},
-            {id: 'cancel', type: 'cancel', text: 'Отмена'}
-        ]
-    }, (buttonId) => {
-        if (buttonId !== 'cancel') {
-            tgApp.showAlert(`Пополнение ${buttonId.toUpperCase()} в разработке`);
-        }
-    });
-}
-
-// Показать опции вывода
-function showWithdrawOptions() {
-    tgApp.showPopup({
-        title: 'Вывод средств',
-        message: 'Выберите валюту для вывода:',
-        buttons: [
-            {id: 'ton', type: 'default', text: 'TON'},
-            {id: 'usdt', type: 'default', text: 'USDT'},
-            {id: 'cancel', type: 'cancel', text: 'Отмена'}
-        ]
-    }, (buttonId) => {
-        if (buttonId !== 'cancel') {
-            tgApp.showAlert(`Вывод ${buttonId.toUpperCase()} в разработке`);
-        }
-    });
-} 
+}); 
