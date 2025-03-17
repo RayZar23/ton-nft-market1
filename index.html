@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TON NFT Market</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Секция кошелька -->
+            <section id="wallet-section" class="section active">
+                <div class="header">
+                    <div class="logo">
+                        <img src="https://placehold.co/100x100/0088cc/FFFFFF?text=TON+NFT" alt="TON NFT Market">
+                        <div class="logo-text">
+                            <h1>TON NFT Market</h1>
+                            <p>Криптовалютный и NFT-рынок на блокчейне TON</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="balance-card">
+                    <div class="balance-info">
+                        <span class="balance-label">Ваш баланс</span>
+                        <span class="balance-amount">125.45 TON</span>
+                        <span class="balance-usd">≈ $249.64</span>
+                    </div>
+                    <div class="balance-actions">
+                        <button class="action-btn primary"><i class="fas fa-plus"></i> Пополнить</button>
+                        <button class="action-btn secondary"><i class="fas fa-arrow-right"></i> Вывести</button>
+                    </div>
+                </div>
+                
+                <!-- Добавляем график криптовалют -->
+                <div class="crypto-chart-container">
+                    <div class="chart-header">
+                        <h3>Динамика цен криптовалют</h3>
+                        <div class="chart-period">
+                            <button class="period-btn active">День</button>
+                            <button class="period-btn">Неделя</button>
+                            <button class="period-btn">Месяц</button>
+                        </div>
+                    </div>
+                    <div class="crypto-chart">
+                        <!-- Статичное изображение графика -->
+                        <img src="https://placehold.co/600x300/0088cc/FFFFFF?text=Crypto+Chart" alt="График криптовалют" class="chart-image">
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #0088cc;"></span>
+                                <span class="legend-label">TON</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #8774e1;"></span>
+                                <span class="legend-label">BTC</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #31b545;"></span>
+                                <span class="legend-label">ETH</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-title">Мои активы</div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">Криптовалюты</span>
+                            <span class="menu-value">175.45 TON</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-image"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">NFT-коллекция</span>
+                            <span class="menu-value">12 NFT</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-title">Торговля</div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-store"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">Маркет</span>
+                            <span class="menu-description">Покупка и продажа NFT</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-gavel"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">Аукционы</span>
+                            <span class="menu-description">Участие в торгах</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-plus-circle"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">Создать NFT</span>
+                            <span class="menu-description">Загрузка и выпуск новых NFT</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <div class="menu-title">Дополнительно</div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-history"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">История транзакций</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-users"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">Партнёрская программа</span>
+                            <span class="menu-badge">Новое</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-robot"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">Автоматизация</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-icon"><i class="fas fa-cog"></i></div>
+                        <div class="menu-content">
+                            <span class="menu-label">Настройки</span>
+                        </div>
+                        <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                        <div class="info-content">
+                            <span class="info-title">О проекте</span>
+                            <p class="info-text">TON NFT Market - платформа для покупки, продажи и обмена NFT на блокчейне TON.</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-question-circle"></i></div>
+                        <div class="info-content">
+                            <span class="info-title">Поддержка</span>
+                            <p class="info-text">Если у вас возникли вопросы, обратитесь в нашу службу поддержки.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+                    </div>
+                    <div class="copyright">
+                        © 2023 TON NFT Market. Все права защищены.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция аукциона -->
+            <section id="auction-section" class="section">
+                <div class="section-header">
+                    <h2>Аукцион</h2>
+                    <div class="search-filter">
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Поиск по аукционам...">
+                        </div>
+                        <button class="filter-btn"><i class="fas fa-filter"></i></button>
+                    </div>
+                </div>
+                
+                <div class="auction-categories">
+                    <button class="category-btn active">Все</button>
+                    <button class="category-btn">Популярные</button>
+                    <button class="category-btn">Заканчиваются</button>
+                    <button class="category-btn">Новые</button>
+                </div>
+                
+                <div class="auction-list">
+                    <div class="auction-item">
+                        <div class="auction-image">
+                            <img src="https://placehold.co/300x300/2b3a67/FFF?text=Auction+NFT" alt="Auction NFT">
+                            <span class="auction-time">05:23:14</span>
+                        </div>
+                        <div class="auction-info">
+                            <span class="auction-name">Премиум Подарок #7890</span>
+                            <div class="auction-price">
+                                <span class="current-bid">Текущая ставка:</span>
+                                <span class="bid-amount">45.5 TON</span>
+                            </div>
+                            <div class="auction-bids">
+                                <span class="bid-count"><i class="fas fa-gavel"></i> 12 ставок</span>
+                                <button class="bid-btn">Сделать ставку</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auction-item">
+                        <div class="auction-image">
+                            <img src="https://placehold.co/300x300/3a2b67/FFF?text=Auction+NFT" alt="Auction NFT">
+                            <span class="auction-time">12:45:30</span>
+                        </div>
+                        <div class="auction-info">
+                            <span class="auction-name">Редкий Подарок #2468</span>
+                            <div class="auction-price">
+                                <span class="current-bid">Текущая ставка:</span>
+                                <span class="bid-amount">32.1 TON</span>
+                            </div>
+                            <div class="auction-bids">
+                                <span class="bid-count"><i class="fas fa-gavel"></i> 8 ставок</span>
+                                <button class="bid-btn">Сделать ставку</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auction-item">
+                        <div class="auction-image">
+                            <img src="https://placehold.co/300x300/672b3a/FFF?text=Auction+NFT" alt="Auction NFT">
+                            <span class="auction-time">23:59:59</span>
+                        </div>
+                        <div class="auction-info">
+                            <span class="auction-name">Эксклюзивный Подарок #1357</span>
+                            <div class="auction-price">
+                                <span class="current-bid">Текущая ставка:</span>
+                                <span class="bid-amount">78.9 TON</span>
+                            </div>
+                            <div class="auction-bids">
+                                <span class="bid-count"><i class="fas fa-gavel"></i> 24 ставки</span>
+                                <button class="bid-btn">Сделать ставку</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция маркета -->
+            <section id="market-section" class="section">
+                <div class="section-header">
+                    <h2>Маркет</h2>
+                    <div class="search-filter">
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Поиск по маркету...">
+                        </div>
+                        <button class="filter-btn"><i class="fas fa-filter"></i></button>
+                    </div>
+                </div>
+                
+                <div class="market-categories">
+                    <button class="category-btn active">Все</button>
+                    <button class="category-btn">Популярные</button>
+                    <button class="category-btn">Новинки</button>
+                    <button class="category-btn">Распродажа</button>
+                </div>
+                
+                <div class="market-grid">
+                    <div class="market-item">
+                        <div class="market-image">
+                            <img src="https://placehold.co/300x300/2b3a67/FFF?text=Market+NFT" alt="Market NFT">
+                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                        </div>
+                        <div class="market-info">
+                            <span class="market-name">Подарок "Звезда" #4321</span>
+                            <span class="market-price">25.0 TON</span>
+                            <button class="buy-btn">Купить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="market-item">
+                        <div class="market-image">
+                            <img src="https://placehold.co/300x300/3a2b67/FFF?text=Market+NFT" alt="Market NFT">
+                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                        </div>
+                        <div class="market-info">
+                            <span class="market-name">Подарок "Луна" #8765</span>
+                            <span class="market-price">18.5 TON</span>
+                            <button class="buy-btn">Купить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="market-item">
+                        <div class="market-image">
+                            <img src="https://placehold.co/300x300/672b3a/FFF?text=Market+NFT" alt="Market NFT">
+                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                        </div>
+                        <div class="market-info">
+                            <span class="market-name">Подарок "Солнце" #2109</span>
+                            <span class="market-price">30.2 TON</span>
+                            <button class="buy-btn">Купить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="market-item">
+                        <div class="market-image">
+                            <img src="https://placehold.co/300x300/2b673a/FFF?text=Market+NFT" alt="Market NFT">
+                            <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                        </div>
+                        <div class="market-info">
+                            <span class="market-name">Подарок "Комета" #6543</span>
+                            <span class="market-price">22.7 TON</span>
+                            <button class="buy-btn">Купить</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция добавления NFT -->
+            <section id="add-nft-section" class="section">
+                <div class="section-header">
+                    <h2>Добавление NFT</h2>
+                </div>
+                
+                <div class="add-nft-form">
+                    <div class="upload-container">
+                        <div class="upload-area">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Загрузите изображение</span>
+                            <span class="upload-hint">PNG, JPG, GIF (макс. 10MB)</span>
+                            <input type="file" id="nft-upload" hidden>
+                            <button class="upload-btn">Выбрать файл</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nft-name">Название NFT</label>
+                        <input type="text" id="nft-name" placeholder="Введите название...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nft-description">Описание</label>
+                        <textarea id="nft-description" placeholder="Опишите ваш NFT-подарок..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="nft-price">Цена (TON)</label>
+                            <input type="number" id="nft-price" placeholder="0.00">
+                        </div>
+                        <div class="form-group half">
+                            <label for="nft-royalty">Роялти (%)</label>
+                            <input type="number" id="nft-royalty" placeholder="0" min="0" max="50">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Тип продажи</label>
+                        <div class="sale-type-options">
+                            <label class="radio-option">
+                                <input type="radio" name="sale-type" value="fixed" checked>
+                                <span class="radio-label">Фиксированная цена</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sale-type" value="auction">
+                                <span class="radio-label">Аукцион</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="auction-settings" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label for="auction-start">Начальная цена (TON)</label>
+                                <input type="number" id="auction-start" placeholder="0.00">
+                            </div>
+                            <div class="form-group half">
+                                <label for="auction-duration">Длительность (дни)</label>
+                                <input type="number" id="auction-duration" placeholder="7" min="1" max="30">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="create-nft-btn">Создать NFT</button>
+                </div>
+            </section>
+
+            <!-- Секция настроек -->
+            <section id="settings-section" class="section">
+                <div class="section-header">
+                    <h2>Настройки</h2>
+                </div>
+                
+                <div class="settings-list">
+                    <div class="settings-group">
+                        <h3>Аккаунт</h3>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-user"></i>
+                                <span>Профиль</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-history"></i>
+                                <span>История сделок</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-tag"></i>
+                                <span>Мои объявления</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Мои предложения цен</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3>Безопасность</h3>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-lock"></i>
+                                <span>PIN-код</span>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="pin-toggle">
+                                <label for="pin-toggle"></label>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-key"></i>
+                                <span>Резервная фраза</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3>Уведомления</h3>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-bell"></i>
+                                <span>Все уведомления</span>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="all-notifications-toggle" checked>
+                                <label for="all-notifications-toggle"></label>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Важные уведомления</span>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="important-notifications-toggle" checked>
+                                <label for="important-notifications-toggle"></label>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-gavel"></i>
+                                <span>Аукционы</span>
+                            </div>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="auction-notifications-toggle" checked>
+                                <label for="auction-notifications-toggle"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3>Дополнительно</h3>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-users"></i>
+                                <span>Партнёрская программа</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-robot"></i>
+                                <span>Автоматизация</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Статистика</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-info">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Помощь</span>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Добавляем навигационную панель снизу -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-section="wallet-section">
+                <i class="fas fa-wallet"></i>
+                <span>Кошелёк</span>
+            </button>
+            <button class="nav-btn" data-section="market-section">
+                <i class="fas fa-store"></i>
+                <span>Маркет</span>
+            </button>
+            <button class="nav-btn" data-section="auction-section">
+                <i class="fas fa-gavel"></i>
+                <span>Аукцион</span>
+            </button>
+            <button class="nav-btn" data-section="add-nft-section">
+                <i class="fas fa-plus-circle"></i>
+                <span>Создать</span>
+            </button>
+            <button class="nav-btn" data-section="settings-section">
+                <i class="fas fa-cog"></i>
+                <span>Настройки</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 
