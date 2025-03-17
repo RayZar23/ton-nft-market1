@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Тест Telegram WebApp</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .info-block {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #e6f7ff;
+            display: none;
+        }
+        .success {
+            background-color: #e6fff0;
+            color: #00a651;
+        }
+        .error {
+            background-color: #fff0f0;
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест Telegram WebApp API</h1>
+    
+    <div class="info-block">
+        <div class="info-item">
+            <span class="info-label">Статус WebApp API:</span>
+            <span id="api-status">Проверка...</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Версия WebApp:</span>
+            <span id="webapp-version">-</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Цветовая схема:</span>
+            <span id="color-scheme">-</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Инициатор:</span>
+            <span id="initiation-source">-</span>
+        </div>
+    </div>
+    
+    <div class="button-group">
+        <button id="btn-expand">Развернуть</button>
+        <button id="btn-close">Закрыть</button>
+        <button id="btn-show-popup">Показать попап</button>
+        <button id="btn-show-alert">Показать алерт</button>
+        <button id="btn-main-button">Показать главную кнопку</button>
+        <button id="btn-back-button">Показать кнопку "Назад"</button>
+    </div>
+    
+    <div id="status-message" class="status"></div>
+    
+    <script>
+        // Проверяем наличие Telegram WebApp API
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiStatus = document.getElementById('api-status');
+            const webappVersion = document.getElementById('webapp-version');
+            const colorScheme = document.getElementById('color-scheme');
+            const initiationSource = document.getElementById('initiation-source');
+            const statusMessage = document.getElementById('status-message');
+            
+            // Функция для отображения статусного сообщения
+            function showStatus(message, isError = false) {
+                statusMessage.textContent = message;
+                statusMessage.style.display = 'block';
+                
+                if (isError) {
+                    statusMessage.classList.add('error');
+                    statusMessage.classList.remove('success');
+                } else {
+                    statusMessage.classList.add('success');
+                    statusMessage.classList.remove('error');
+                }
+                
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Проверяем доступность Telegram WebApp API
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tgApp = window.Telegram.WebApp;
+                
+                apiStatus.textContent = 'Доступен';
+                webappVersion.textContent = tgApp.version || 'Неизвестно';
+                colorScheme.textContent = tgApp.colorScheme || 'Неизвестно';
+                
+                // Определяем источник инициации
+                if (tgApp.initDataUnsafe && tgApp.initDataUnsafe.start_param) {
+                    initiationSource.textContent = `Старт с параметром: ${tgApp.initDataUnsafe.start_param}`;
+                } else if (tgApp.initDataUnsafe && tgApp.initDataUnsafe.query_id) {
+                    initiationSource.textContent = 'Inline режим';
+                } else {
+                    initiationSource.textContent = 'Обычный запуск';
+                }
+                
+                // Обработчики кнопок
+                document.getElementById('btn-expand').addEventListener('click', function() {
+                    tgApp.expand();
+                    showStatus('WebApp развернут на весь экран');
+                });
+                
+                document.getElementById('btn-close').addEventListener('click', function() {
+                    tgApp.close();
+                });
+                
+                document.getElementById('btn-show-popup').addEventListener('click', function() {
+                    tgApp.showPopup({
+                        title: 'Тестовый попап',
+                        message: 'Это тестовое сообщение для проверки работы WebApp API',
+                        buttons: [
+                            {id: 'ok', type: 'default', text: 'OK'},
+                            {id: 'cancel', type: 'cancel', text: 'Отмена'}
+                        ]
+                    }, function(buttonId) {
+                        showStatus(`Нажата кнопка: ${buttonId}`);
+                    });
+                });
+                
+                document.getElementById('btn-show-alert').addEventListener('click', function() {
+                    tgApp.showAlert('Это тестовое уведомление');
+                });
+                
+                document.getElementById('btn-main-button').addEventListener('click', function() {
+                    tgApp.MainButton.setParams({
+                        text: 'ГЛАВНАЯ КНОПКА',
+                        color: '#2cab37',
+                        text_color: '#ffffff',
+                        is_active: true
+                    });
+                    
+                    tgApp.MainButton.onClick(function() {
+                        showStatus('Нажата главная кнопка');
+                        tgApp.MainButton.hide();
+                    });
+                    
+                    tgApp.MainButton.show();
+                    showStatus('Главная кнопка показана');
+                });
+                
+                document.getElementById('btn-back-button').addEventListener('click', function() {
+                    tgApp.BackButton.show();
+                    showStatus('Кнопка "Назад" показана');
+                    
+                    tgApp.BackButton.onClick(function() {
+                        showStatus('Нажата кнопка "Назад"');
+                        tgApp.BackButton.hide();
+                    });
+                });
+                
+            } else {
+                apiStatus.textContent = 'Недоступен';
+                showStatus('Telegram WebApp API не обнаружен. Возможно, страница открыта не в Telegram.', true);
+                
+                // Добавляем информацию о тестировании
+                const infoBlock = document.querySelector('.info-block');
+                const testInfo = document.createElement('div');
+                testInfo.className = 'info-item';
+                testInfo.innerHTML = `
+                    <span class="info-label">Для тестирования:</span>
+                    <p>Откройте эту страницу в Telegram WebApp или добавьте параметр <code>?tgWebAppData=...</code> в URL.</p>
+                    <p>Для локального тестирования используйте <a href="https://core.telegram.org/bots/webapps#testing-mini-apps" target="_blank">режим отладки</a>.</p>
+                `;
+                infoBlock.appendChild(testInfo);
+            }
+        });
+    </script>
+</body>
+</html> 
