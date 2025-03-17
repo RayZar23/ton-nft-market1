@@ -549,6 +549,16 @@
         </nav>
     </div>
 
-    <script src="/app.js"></script>
+    <script>
+        // Проверяем, доступен ли Telegram Web App
+        window.addEventListener('load', function() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                console.log('Telegram Web App доступен');
+            } else {
+                console.log('Telegram Web App недоступен, используем альтернативный режим');
+            }
+        });
+    </script>
+    <script src="app.js"></script>
 </body>
 </html> 

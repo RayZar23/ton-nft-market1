@@ -1,11 +1,16 @@
 // Инициализация Telegram WebApp
-const tgApp = window.Telegram.WebApp;
-
-// Расширяем приложение на весь экран
-tgApp.expand();
-
-// Устанавливаем тему в зависимости от темы Telegram
-document.body.classList.toggle('dark-theme', tgApp.colorScheme === 'dark');
+let tgApp = null;
+try {
+    if (window.Telegram && window.Telegram.WebApp) {
+        tgApp = window.Telegram.WebApp;
+        // Расширяем приложение на весь экран
+        tgApp.expand();
+        // Устанавливаем тему в зависимости от темы Telegram
+        document.body.classList.toggle('dark-theme', tgApp.colorScheme === 'dark');
+    }
+} catch (error) {
+    console.log('Telegram Web App недоступен:', error);
+}
 
 // Получаем элементы DOM
 const sections = document.querySelectorAll('.section');
