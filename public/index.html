@@ -33,38 +33,108 @@
                         <span class="balance-usd">≈ $249.64</span>
                     </div>
                     <div class="balance-actions">
-                        <button class="action-btn primary"><i class="fas fa-plus"></i> Пополнить</button>
-                        <button class="action-btn secondary"><i class="fas fa-arrow-right"></i> Вывести</button>
+                        <button class="action-btn primary" onclick="depositFunds()"><i class="fas fa-plus"></i> Пополнить</button>
+                        <button class="action-btn secondary" onclick="withdrawFunds()"><i class="fas fa-arrow-right"></i> Вывести</button>
                     </div>
                 </div>
                 
                 <!-- Добавляем график криптовалют -->
                 <div class="crypto-chart-container">
                     <div class="chart-header">
-                        <h3>Динамика цен криптовалют</h3>
-                        <div class="chart-period">
-                            <button class="period-btn active">День</button>
-                            <button class="period-btn">Неделя</button>
-                            <button class="period-btn">Месяц</button>
+                        <div class="chart-title">
+                            <div class="chart-coin">
+                                <img src="https://placehold.co/40x40/0088cc/FFFFFF?text=TON" alt="TON">
+                                <div class="chart-coin-info">
+                                    <span class="chart-coin-name">TON</span>
+                                    <span class="chart-coin-price">$2.54</span>
+                                </div>
+                            </div>
+                            <span class="price-change positive">+5.2%</span>
+                        </div>
+                        <div class="chart-periods">
+                            <button class="period-btn active">24h</button>
+                            <button class="period-btn">7d</button>
+                            <button class="period-btn">1m</button>
+                            <button class="period-btn">3m</button>
+                            <button class="period-btn">1y</button>
                         </div>
                     </div>
-                    <div class="crypto-chart">
-                        <!-- Статичное изображение графика -->
-                        <img src="https://placehold.co/600x300/0088cc/FFFFFF?text=Crypto+Chart" alt="График криптовалют" class="chart-image">
-                        <div class="chart-legend">
-                            <div class="legend-item">
-                                <span class="legend-color" style="background-color: #0088cc;"></span>
-                                <span class="legend-label">TON</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color" style="background-color: #8774e1;"></span>
-                                <span class="legend-label">BTC</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color" style="background-color: #31b545;"></span>
-                                <span class="legend-label">ETH</span>
-                            </div>
+                    <div class="chart-wrapper">
+                        <canvas id="crypto-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="assets-tabs">
+                    <button class="tab-btn active" data-tab="nft">NFT</button>
+                    <button class="tab-btn" data-tab="crypto">Криптовалюты</button>
+                </div>
+                
+                <div class="assets-list nft-list active">
+                    <div class="asset-item nft">
+                        <div class="asset-image">
+                            <img src="https://placehold.co/150x150/8774e1/FFFFFF?text=NFT1" alt="NFT Asset">
                         </div>
+                        <div class="asset-info">
+                            <span class="asset-name">Crypto Kitty #1337</span>
+                            <span class="asset-price">12.5 TON</span>
+                        </div>
+                        <button class="asset-action"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    <div class="asset-item nft">
+                        <div class="asset-image">
+                            <img src="https://placehold.co/150x150/e74c3c/FFFFFF?text=NFT2" alt="NFT Asset">
+                        </div>
+                        <div class="asset-info">
+                            <span class="asset-name">TON Punk #42</span>
+                            <span class="asset-price">8.9 TON</span>
+                        </div>
+                        <button class="asset-action"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    <div class="asset-item nft">
+                        <div class="asset-image">
+                            <img src="https://placehold.co/150x150/3498db/FFFFFF?text=NFT3" alt="NFT Asset">
+                        </div>
+                        <div class="asset-info">
+                            <span class="asset-name">Digital Art #007</span>
+                            <span class="asset-price">15.2 TON</span>
+                        </div>
+                        <button class="asset-action"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                </div>
+                
+                <div class="assets-list crypto-list">
+                    <div class="asset-item crypto">
+                        <div class="asset-icon">
+                            <img src="https://placehold.co/50x50/f39c12/FFFFFF?text=BTC" alt="Bitcoin">
+                        </div>
+                        <div class="asset-info">
+                            <span class="asset-name">Bitcoin</span>
+                            <span class="asset-balance">0.015 BTC</span>
+                            <span class="asset-value">≈ $450.25</span>
+                        </div>
+                        <div class="asset-change positive">+2.5%</div>
+                    </div>
+                    <div class="asset-item crypto">
+                        <div class="asset-icon">
+                            <img src="https://placehold.co/50x50/2ecc71/FFFFFF?text=ETH" alt="Ethereum">
+                        </div>
+                        <div class="asset-info">
+                            <span class="asset-name">Ethereum</span>
+                            <span class="asset-balance">0.25 ETH</span>
+                            <span class="asset-value">≈ $375.40</span>
+                        </div>
+                        <div class="asset-change negative">-1.2%</div>
+                    </div>
+                    <div class="asset-item crypto">
+                        <div class="asset-icon">
+                            <img src="https://placehold.co/50x50/0088cc/FFFFFF?text=TON" alt="TON">
+                        </div>
+                        <div class="asset-info">
+                            <span class="asset-name">TON</span>
+                            <span class="asset-balance">125.45 TON</span>
+                            <span class="asset-value">≈ $249.64</span>
+                        </div>
+                        <div class="asset-change positive">+5.2%</div>
                     </div>
                 </div>
                 

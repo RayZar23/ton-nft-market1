@@ -167,10 +167,11 @@ body {
 
 /* Стили для графика криптовалют */
 .crypto-chart-container {
-    margin: 0 16px 24px 16px;
     background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
     border-radius: var(--border-radius);
+    margin: 16px 0;
     padding: 16px;
+    box-shadow: var(--card-shadow);
 }
 
 .chart-header {
@@ -180,64 +181,216 @@ body {
     margin-bottom: 16px;
 }
 
-.chart-header h3 {
+.chart-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.chart-coin {
+    display: flex;
+    align-items: center;
+}
+
+.chart-coin img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.chart-coin-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-coin-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.chart-coin-price {
     font-size: 16px;
+    font-weight: 700;
+}
+
+.price-change {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 14px;
     font-weight: 600;
 }
 
-.chart-period {
+.price-change.positive {
+    color: var(--success-color);
+    background-color: rgba(49, 181, 69, 0.1);
+}
+
+.price-change.negative {
+    color: var(--danger-color);
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+.chart-periods {
     display: flex;
     gap: 8px;
+    margin-top: 8px;
 }
 
 .period-btn {
     background: none;
     border: none;
     padding: 4px 8px;
-    font-size: 12px;
-    color: var(--tg-theme-hint-color, #999999);
-    border-radius: 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--tg-theme-hint-color, #999);
     cursor: pointer;
 }
 
 .period-btn.active {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--tg-theme-button-color, #2481cc);
+    color: var(--tg-theme-button-text-color, #fff);
 }
 
-.crypto-chart {
+.chart-wrapper {
+    width: 100%;
+    height: 200px;
     position: relative;
 }
 
-.chart-image {
-    width: 100%;
-    height: auto;
-    border-radius: var(--small-radius);
-    margin-bottom: 12px;
-}
-
-.chart-legend {
+/* Стили для вкладок активов */
+.assets-tabs {
     display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 8px;
+    margin: 16px 0;
+    border-bottom: 1px solid var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
 }
 
-.legend-item {
+.tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tg-theme-hint-color, #999);
+    position: relative;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    color: var(--tg-theme-text-color, #000);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+/* Стили для списков активов */
+.assets-list {
+    display: none;
+}
+
+.assets-list.active {
+    display: block;
+}
+
+.asset-item {
     display: flex;
     align-items: center;
-    gap: 4px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+    border-radius: var(--small-radius);
 }
 
-.legend-color {
-    width: 12px;
-    height: 12px;
+.asset-image {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--small-radius);
+    overflow: hidden;
+    margin-right: 12px;
+}
+
+.asset-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.asset-icon {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
 }
 
-.legend-label {
-    font-size: 12px;
+.asset-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.asset-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.asset-price, .asset-balance {
     font-weight: 500;
+    color: var(--tg-theme-text-color, #000);
+}
+
+.asset-value {
+    font-size: 12px;
+    color: var(--tg-theme-hint-color, #999);
+}
+
+.asset-action {
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tg-theme-hint-color, #999);
+    cursor: pointer;
+}
+
+.asset-action:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.asset-change {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.asset-change.positive {
+    color: var(--success-color);
+    background-color: rgba(49, 181, 69, 0.1);
+}
+
+.asset-change.negative {
+    color: var(--danger-color);
+    background-color: rgba(231, 76, 60, 0.1);
 }
 
 /* Секции меню */

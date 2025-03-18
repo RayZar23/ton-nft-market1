@@ -1,97 +1,233 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const crypto = require('crypto-js');
 
 const userSchema = new mongoose.Schema({
   telegramId: {
     type: String,
     required: true,
     unique: true,
+    index: true
   },
   username: {
     type: String,
-    required: true,
+    sparse: true
   },
-  firstName: String,
-  lastName: String,
+  firstName: {
+    type: String,
+    required: true
+  },
+  lastName: {
+    type: String
+  },
+  photoUrl: {
+    type: String
+  },
   walletAddress: {
     type: String,
     unique: true,
     sparse: true,
+    index: true
   },
   balance: {
-    ton: { type: Number, default: 0 },
-    usdt: { type: Number, default: 0 },
-    rub: { type: Number, default: 0 },
-  },
-  nftCollection: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'NFT',
-  }],
-  favorites: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'NFT',
-  }],
-  settings: {
-    notifications: {
-      all: { type: Boolean, default: true },
-      important: { type: Boolean, default: true },
-      priceOffers: { type: Boolean, default: true },
-      favorites: { type: Boolean, default: true },
-      giveaways: { type: Boolean, default: true },
-      auctions: { type: Boolean, default: true },
-      purchases: { type: Boolean, default: true },
-    },
-    security: {
-      pinCode: String,
-      twoFactorEnabled: { type: Boolean, default: false },
-    },
-    autoBuy: {
-      enabled: { type: Boolean, default: false },
-      criteria: {
-        maxPrice: Number,
-        categories: [String],
-        autoParticipateGiveaways: { type: Boolean, default: false },
-        autoWithdraw: { type: Boolean, default: false },
-      },
-    },
+    type: Number,
+    default: 0
   },
   referralCode: {
     type: String,
     unique: true,
+    sparse: true,
+    index: true
   },
-  referredBy: {
+  referrer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    default: null
   },
-  referralRewards: {
+  pinCode: {
+    type: String,
+    select: false
+  },
+  pinLocked: {
+    type: Boolean,
+    default: false
+  },
+  pinFailAttempts: {
     type: Number,
-    default: 0,
+    default: 0
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'moderator'],
+    default: 'user'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  preferences: {
+    theme: {
+      type: String,
+      enum: ['light', 'dark', 'system'],
+      default: 'system'
+    },
+    language: {
+      type: String,
+      default: 'ru'
+    },
+    notifications: {
+      sales: {
+        type: Boolean,
+        default: true
+      },
+      auctions: {
+        type: Boolean,
+        default: true
+      },
+      bids: {
+        type: Boolean,
+        default: true
+      },
+      priceChanges: {
+        type: Boolean,
+        default: true
+      },
+      newItems: {
+        type: Boolean,
+        default: true
+      }
+    }
+  },
+  stats: {
+    totalSales: {
+      type: Number,
+      default: 0
+    },
+    totalPurchases: {
+      type: Number,
+      default: 0
+    },
+    totalEarnings: {
+      type: Number,
+      default: 0
+    },
+    totalSpent: {
+      type: Number,
+      default: 0
+    },
+    salesCount: {
+      type: Number,
+      default: 0
+    },
+    purchasesCount: {
+      type: Number,
+      default: 0
+    },
+    referralsCount: {
+      type: Number,
+      default: 0
+    }
+  },
+  nfts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'NFT'
+  }],
+  favoriteNfts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'NFT'
+  }],
+  lastActive: {
+    type: Date,
+    default: Date.now
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
-  lastActive: {
+  updatedAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
+}, { timestamps: true });
+
+// Генерация уникального реферального кода
+userSchema.methods.generateReferralCode = function() {
+  const randomBytes = crypto.lib.WordArray.random(4);
+  this.referralCode = crypto.enc.Hex.stringify(randomBytes);
+  return this.referralCode;
+};
+
+// Установка PIN-кода с хешированием
+userSchema.methods.setPin = function(pinCode) {
+  if (!pinCode || pinCode.length !== 4 || !/^\d{4}$/.test(pinCode)) {
+    throw new Error('PIN код должен состоять из 4 цифр');
+  }
+  
+  this.pinCode = crypto.SHA256(pinCode).toString();
+  this.pinFailAttempts = 0;
+  this.pinLocked = false;
+  return this.pinCode;
+};
+
+// Проверка PIN-кода
+userSchema.methods.verifyPin = function(pinCode) {
+  if (this.pinLocked) {
+    throw new Error('Аккаунт заблокирован из-за превышения лимита попыток');
+  }
+  
+  const hash = crypto.SHA256(pinCode).toString();
+  const isValid = this.pinCode === hash;
+  
+  if (!isValid) {
+    this.pinFailAttempts += 1;
+    
+    if (this.pinFailAttempts >= 5) {
+      this.pinLocked = true;
+    }
+    
+    this.save();
+  } else {
+    // Сбросить счетчик неудачных попыток при успешной проверке
+    this.pinFailAttempts = 0;
+    this.save();
+  }
+  
+  return isValid;
+};
+
+// Инкрементировать счетчик рефералов
+userSchema.methods.incrementReferralsCount = function() {
+  this.stats.referralsCount += 1;
+  return this.save();
+};
+
+// Обновить время последней активности
+userSchema.methods.updateLastActive = function() {
+  this.lastActive = Date.now();
+  return this.save();
+};
+
+// Обновить статистику после продажи NFT
+userSchema.methods.recordSale = function(amount) {
+  this.stats.totalSales += amount;
+  this.stats.totalEarnings += amount;
+  this.stats.salesCount += 1;
+  this.balance += amount;
+  return this.save();
+};
+
+// Обновить статистику после покупки NFT
+userSchema.methods.recordPurchase = function(amount) {
+  this.stats.totalPurchases += amount;
+  this.stats.totalSpent += amount;
+  this.stats.purchasesCount += 1;
+  this.balance -= amount;
+  return this.save();
+};
+
+// Пре-сохранение: обновляем updatedAt
+userSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
 });
 
-// Методы для работы с паролем (если потребуется)
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
-// Метод для генерации реферального кода
-userSchema.methods.generateReferralCode = function() {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
-};
-
-// Индексы для оптимизации запросов
-userSchema.index({ telegramId: 1 });
-userSchema.index({ walletAddress: 1 });
-userSchema.index({ referralCode: 1 });
-
-const User = mongoose.model('User', userSchema);
-
-module.exports = User; 
+module.exports = mongoose.model('User', userSchema); 

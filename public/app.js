@@ -145,6 +145,11 @@ function switchSection(sectionId) {
     
     // Прокручиваем страницу вверх
     window.scrollTo(0, 0);
+    
+    // Инициализация графика при переходе в кошелек
+    if (sectionId === 'wallet-section') {
+        initChart();
+    }
 }
 
 // Функция для переключения вкладок активов
@@ -173,7 +178,12 @@ function switchCategory(button) {
     });
     button.classList.add('active');
     
-    // Здесь можно добавить логику фильтрации элементов по категории
+    // Фильтрация элементов
+    if (container.classList.contains('auction-categories')) {
+        filterAuctions(button.textContent.trim());
+    } else {
+        filterMarket(button.textContent.trim());
+    }
 }
 
 // Функция для переключения периода графика
@@ -184,8 +194,9 @@ function switchChartPeriod(button) {
     });
     button.classList.add('active');
     
-    // В будущем здесь будет логика обновления данных графика
-    console.log(`Выбран период: ${button.textContent.trim()}`);
+    // Обновляем данные графика в зависимости от выбранного периода
+    const period = button.textContent.trim();
+    updateChartData(period);
 }
 
 // Функция для переключения избранного
@@ -199,7 +210,27 @@ function toggleFavorite(button) {
         icon.classList.toggle('fas');
     }
     
-    // Здесь можно добавить логику сохранения избранного
+    // Добавляем/удаляем элемент из избранного
+    const itemId = button.dataset.id;
+    if (button.classList.contains('active')) {
+        addToFavorites(itemId);
+    } else {
+        removeFromFavorites(itemId);
+    }
+}
+
+// Функция для добавления в избранное
+function addToFavorites(itemId) {
+    // В реальном приложении здесь был бы запрос к API
+    console.log(`Добавлено в избранное: ${itemId}`);
+    showNotification('Добавлено в избранное!', 'success');
+}
+
+// Функция для удаления из избранного
+function removeFromFavorites(itemId) {
+    // В реальном приложении здесь был бы запрос к API
+    console.log(`Удалено из избранного: ${itemId}`);
+    showNotification('Удалено из избранного', 'info');
 }
 
 // Функция для переключения типа продажи
@@ -267,213 +298,373 @@ function placeBid(button) {
     });
 }
 
-// Функция для создания NFT
-function createNFT() {
-    const name = document.getElementById('nft-name').value;
-    const description = document.getElementById('nft-description').value;
-    const price = document.getElementById('nft-price').value;
+// Данные для графика
+let chartInstance = null;
+let cryptoData = {
+    '24h': {
+        labels: generateTimeLabels(24, 'hour'),
+        datasets: [{
+            label: 'TON',
+            data: generateRandomData(24, 2.5, 0.2),
+            borderColor: '#0088CC',
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            fill: true,
+            backgroundColor: 'rgba(0, 136, 204, 0.1)'
+        }]
+    },
+    '7d': {
+        labels: generateTimeLabels(7, 'day'),
+        datasets: [{
+            label: 'TON',
+            data: generateRandomData(7, 2.5, 0.4),
+            borderColor: '#0088CC',
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            fill: true,
+            backgroundColor: 'rgba(0, 136, 204, 0.1)'
+        }]
+    },
+    '1m': {
+        labels: generateTimeLabels(30, 'day'),
+        datasets: [{
+            label: 'TON',
+            data: generateRandomData(30, 2.5, 0.7),
+            borderColor: '#0088CC',
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            fill: true,
+            backgroundColor: 'rgba(0, 136, 204, 0.1)'
+        }]
+    },
+    '3m': {
+        labels: generateTimeLabels(12, 'week'),
+        datasets: [{
+            label: 'TON',
+            data: generateRandomData(12, 2.5, 1),
+            borderColor: '#0088CC',
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            fill: true,
+            backgroundColor: 'rgba(0, 136, 204, 0.1)'
+        }]
+    },
+    '1y': {
+        labels: generateTimeLabels(12, 'month'),
+        datasets: [{
+            label: 'TON',
+            data: generateRandomData(12, 2.5, 1.5),
+            borderColor: '#0088CC',
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            fill: true,
+            backgroundColor: 'rgba(0, 136, 204, 0.1)'
+        }]
+    }
+};
+
+// Функция для генерации временных меток
+function generateTimeLabels(count, unit) {
+    const labels = [];
+    const now = new Date();
     
-    if (!name || !description || !price || !fileInput.files[0]) {
-        showNotification('Пожалуйста, заполните все поля и загрузите изображение', 'error');
-        return;
+    for (let i = count - 1; i >= 0; i--) {
+        let date = new Date(now);
+        
+        if (unit === 'hour') {
+            date.setHours(now.getHours() - i);
+            labels.push(date.getHours() + ':00');
+        } else if (unit === 'day') {
+            date.setDate(now.getDate() - i);
+            labels.push(date.getDate() + '/' + (date.getMonth() + 1));
+        } else if (unit === 'week') {
+            date.setDate(now.getDate() - i * 7);
+            labels.push(date.getDate() + '/' + (date.getMonth() + 1));
+        } else if (unit === 'month') {
+            date.setMonth(now.getMonth() - i);
+            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            labels.push(monthNames[date.getMonth()]);
+        }
     }
     
-    // Показываем индикатор загрузки
-    const loading = document.createElement('div');
-    loading.className = 'loading';
-    loading.innerHTML = '<div class="spinner"></div>';
-    document.body.appendChild(loading);
+    return labels;
+}
+
+// Функция для генерации случайных данных с трендом
+function generateRandomData(count, baseValue, volatility) {
+    let data = [];
+    let value = baseValue;
     
-    // Имитируем процесс создания NFT
-    setTimeout(() => {
-        // Скрываем индикатор загрузки
-        loading.remove();
+    // Добавляем небольшой положительный тренд
+    const trend = 0.02;
+    
+    for (let i = 0; i < count; i++) {
+        // Случайное изменение с учетом волатильности
+        const change = (Math.random() - 0.4) * volatility;
         
-        // Показываем успешное сообщение
-        showNotification('NFT успешно создан!', 'success');
-        
-        // Очищаем форму
-        document.getElementById('nft-name').value = '';
-        document.getElementById('nft-description').value = '';
-        document.getElementById('nft-price').value = '';
-        document.getElementById('nft-royalty').value = '';
-        
-        // Сбрасываем область загрузки
-        const uploadArea = document.querySelector('.upload-area');
-        uploadArea.innerHTML = `
-            <i class="fas fa-cloud-upload-alt"></i>
-            <span>Загрузите изображение</span>
-            <span class="upload-hint">PNG, JPG, GIF (макс. 10MB)</span>
-            <button class="upload-btn">Выбрать файл</button>
-        `;
-        uploadArea.querySelector('.upload-btn').addEventListener('click', handleFileUpload);
-        
-        // Переключаемся на вкладку кошелька
-        switchSection('wallet-section');
-    }, 2000);
+        // Применяем изменение и тренд
+        value = Math.max(0.1, value + change + trend);
+        data.push(value.toFixed(2));
+    }
+    
+    return data;
 }
 
-// Функция для показа криптовалютных активов
-function showCryptoAssets() {
-    showNotification('Функция показа криптовалютных активов в разработке', 'info');
+// Функция для инициализации графика
+function initChart() {
+    const chartElement = document.getElementById('crypto-chart');
+    if (!chartElement) return;
+    
+    // Если график уже инициализирован, уничтожаем его
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+    
+    // Создаем новый график с данными за 24 часа по умолчанию
+    const ctx = chartElement.getContext('2d');
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: cryptoData['24h'],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--tg-theme-hint-color')
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'rgba(200, 200, 200, 0.1)'
+                    },
+                    ticks: {
+                        color: getComputedStyle(document.body).getPropertyValue('--tg-theme-hint-color'),
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: getComputedStyle(document.body).getPropertyValue('--tg-theme-secondary-bg-color'),
+                    titleColor: getComputedStyle(document.body).getPropertyValue('--tg-theme-text-color'),
+                    bodyColor: getComputedStyle(document.body).getPropertyValue('--tg-theme-text-color'),
+                    borderWidth: 1,
+                    borderColor: 'rgba(200, 200, 200, 0.25)',
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return 'TON: $' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            }
+        }
+    });
 }
 
-// Функция для показа коллекции NFT
-function showNFTCollection() {
-    showNotification('Функция показа коллекции NFT в разработке', 'info');
+// Функция для обновления данных графика
+function updateChartData(period) {
+    if (!chartInstance) return;
+    
+    // Обновляем данные и перерисовываем график
+    chartInstance.data = cryptoData[period] || cryptoData['24h'];
+    chartInstance.update();
+    
+    // Обновляем процентное изменение
+    updatePriceChange(period);
 }
 
-// Функция для показа маркета
-function showMarket() {
-    switchSection('market-section');
+// Функция для обновления процентного изменения цены
+function updatePriceChange(period) {
+    const priceChangeElement = document.querySelector('.price-change');
+    if (!priceChangeElement) return;
+    
+    const data = cryptoData[period]?.datasets[0].data;
+    if (!data || data.length < 2) return;
+    
+    const startPrice = parseFloat(data[0]);
+    const endPrice = parseFloat(data[data.length - 1]);
+    const change = ((endPrice - startPrice) / startPrice) * 100;
+    
+    priceChangeElement.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+    priceChangeElement.className = 'price-change ' + (change >= 0 ? 'positive' : 'negative');
 }
 
-// Функция для показа аукционов
-function showAuctions() {
-    switchSection('auction-section');
+// Функция для фильтрации аукционов
+function filterAuctions(category) {
+    const items = document.querySelectorAll('.auction-item');
+    
+    items.forEach(item => {
+        if (category === 'Все' || item.dataset.category === category) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
 }
 
-// Функция для показа создания NFT
-function showCreateNFT() {
-    switchSection('add-nft-section');
-}
-
-// Функция для показа истории транзакций
-function showTransactionHistory() {
-    showNotification('Функция показа истории транзакций в разработке', 'info');
-}
-
-// Функция для показа партнерской программы
-function showReferralProgram() {
-    showNotification('Функция показа партнерской программы в разработке', 'info');
-}
-
-// Функция для показа автоматизации
-function showAutomation() {
-    showNotification('Функция показа автоматизации в разработке', 'info');
-}
-
-// Функция для показа настроек
-function showSettings() {
-    switchSection('settings-section');
-}
-
-// Функция для показа опций пополнения
-function showDepositOptions() {
-    showNotification('Функция пополнения в разработке', 'info');
-}
-
-// Функция для показа опций вывода
-function showWithdrawOptions() {
-    showNotification('Функция вывода в разработке', 'info');
+// Функция для фильтрации маркета
+function filterMarket(category) {
+    const items = document.querySelectorAll('.market-item');
+    
+    items.forEach(item => {
+        if (category === 'Все' || item.dataset.category === category) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
 }
 
 // Добавляем обработчики событий
-document.addEventListener('DOMContentLoaded', () => {
-    // Обработчики для кнопок навигации
-    navButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            switchSection(btn.dataset.section);
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация обработчиков для кнопок навигации
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const sectionId = button.dataset.section;
+            switchSection(sectionId);
         });
     });
     
-    // Обработчики для вкладок активов
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            switchAssetTab(btn.dataset.tab);
+    // Инициализация обработчиков для кнопок вкладок
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.dataset.tab;
+            switchAssetTab(tabId);
         });
     });
     
-    // Обработчики для кнопок категорий
-    categoryButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            switchCategory(btn);
+    // Инициализация обработчиков для кнопок категорий
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            switchCategory(button);
         });
     });
     
-    // Обработчики для кнопок периода графика
-    periodButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            switchChartPeriod(btn);
+    // Инициализация обработчиков для кнопок избранного
+    favoriteButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            toggleFavorite(button);
         });
     });
     
-    // Обработчики для кнопок избранного
-    favoriteButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            toggleFavorite(btn);
-        });
-    });
-    
-    // Обработчики для переключателей типа продажи
+    // Инициализация обработчиков для радио-кнопок типа продажи
     saleTypeRadios.forEach(radio => {
         radio.addEventListener('change', toggleSaleType);
     });
     
-    // Обработчики для кнопок покупки
-    document.querySelectorAll('.buy-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            buyNFT(btn);
+    // Инициализация обработчика для кнопки загрузки
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', handleFileUpload);
+    }
+    
+    // Инициализация обработчика для поля загрузки файла
+    if (fileInput) {
+        fileInput.addEventListener('change', displaySelectedFile);
+    }
+    
+    // Инициализация обработчика для кнопок периода
+    periodButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            switchChartPeriod(button);
         });
     });
     
-    // Обработчики для кнопок ставок
-    document.querySelectorAll('.bid-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            placeBid(btn);
-        });
+    // Инициализация графика при загрузке страницы, если активна секция кошелька
+    if (document.getElementById('wallet-section').classList.contains('active')) {
+        // Загружаем скрипт Chart.js динамически
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = function() {
+            initChart();
+        };
+        document.head.appendChild(script);
+    }
+});
+
+// Функция для показа крипто-активов
+function showCryptoAssets() {
+    showNotification('Функция просмотра крипто-активов находится в разработке', 'info');
+}
+
+// Функция для пополнения кошелька
+function depositFunds() {
+    showInputForm('Пополнить кошелек', 'Введите сумму в TON:', (value) => {
+        if (!value || isNaN(value) || parseFloat(value) <= 0) {
+            showNotification('Пожалуйста, введите корректную сумму', 'error');
+            return;
+        }
+        
+        showNotification(`Запрос на пополнение на ${value} TON отправлен`, 'success');
     });
-    
-    // Обработчики для кнопки загрузки файла
-    uploadBtn.addEventListener('click', handleFileUpload);
-    
-    // Обработчик для выбора файла
-    fileInput.addEventListener('change', displaySelectedFile);
-    
-    // Обработчик для кнопки создания NFT
-    document.querySelector('.create-nft-btn').addEventListener('click', createNFT);
-    
-    // Обработчики для меню активов
-    document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const action = item.dataset.action;
-            if (action) {
-                switch(action) {
-                    case 'crypto':
-                        showCryptoAssets();
-                        break;
-                    case 'nft':
-                        showNFTCollection();
-                        break;
-                    case 'market':
-                        showMarket();
-                        break;
-                    case 'auction':
-                        showAuctions();
-                        break;
-                    case 'create':
-                        showCreateNFT();
-                        break;
-                    case 'history':
-                        showTransactionHistory();
-                        break;
-                    case 'referral':
-                        showReferralProgram();
-                        break;
-                    case 'automation':
-                        showAutomation();
-                        break;
-                    case 'settings':
-                        showSettings();
-                        break;
-                    case 'deposit':
-                        showDepositOptions();
-                        break;
-                    case 'withdraw':
-                        showWithdrawOptions();
-                        break;
-                }
-            }
-        });
+}
+
+// Функция для вывода средств
+function withdrawFunds() {
+    showInputForm('Вывести средства', 'Введите сумму в TON:', (value) => {
+        if (!value || isNaN(value) || parseFloat(value) <= 0) {
+            showNotification('Пожалуйста, введите корректную сумму', 'error');
+            return;
+        }
+        
+        showNotification(`Запрос на вывод ${value} TON отправлен`, 'success');
     });
-}); 
+}
+
+// Функция для создания NFT
+function createNFT(form) {
+    if (!form) return;
+    
+    const formData = new FormData(form);
+    const name = formData.get('name');
+    const description = formData.get('description');
+    const price = formData.get('price');
+    const saleType = formData.get('sale-type');
+    
+    if (!name || !price || price <= 0) {
+        showNotification('Пожалуйста, заполните все обязательные поля', 'error');
+        return false;
+    }
+    
+    if (saleType === 'auction') {
+        const startPrice = formData.get('start-price');
+        const duration = formData.get('auction-duration');
+        
+        if (!startPrice || startPrice <= 0 || !duration) {
+            showNotification('Пожалуйста, заполните все поля для аукциона', 'error');
+            return false;
+        }
+    }
+    
+    showNotification(`NFT "${name}" успешно создан!`, 'success');
+    
+    // Возвращаемся на страницу кошелька
+    setTimeout(() => {
+        switchSection('wallet-section');
+    }, 1000);
+    
+    return false;
+} 
