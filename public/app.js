@@ -27,71 +27,102 @@ const periodButtons = document.querySelectorAll('.period-btn');
 
 // Функция для показа уведомления
 function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    if (tgApp && tgApp.showAlert) {
+        tgApp.showAlert(message);
+    } else {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
 }
 
 // Функция для показа подтверждения
 function showConfirmation(message, onConfirm, onCancel) {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <p>${message}</p>
-            <div class="modal-buttons">
-                <button class="modal-btn cancel">Отмена</button>
-                <button class="modal-btn confirm">Подтвердить</button>
+    if (tgApp && tgApp.showConfirm) {
+        tgApp.showConfirm(message, (confirmed) => {
+            if (confirmed) {
+                onConfirm && onConfirm();
+            } else {
+                onCancel && onCancel();
+            }
+        });
+    } else {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <p>${message}</p>
+                <div class="modal-buttons">
+                    <button class="modal-btn cancel">Отмена</button>
+                    <button class="modal-btn confirm">Подтвердить</button>
+                </div>
             </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    modal.querySelector('.confirm').addEventListener('click', () => {
-        modal.remove();
-        onConfirm && onConfirm();
-    });
-    
-    modal.querySelector('.cancel').addEventListener('click', () => {
-        modal.remove();
-        onCancel && onCancel();
-    });
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.querySelector('.confirm').addEventListener('click', () => {
+            modal.remove();
+            onConfirm && onConfirm();
+        });
+        
+        modal.querySelector('.cancel').addEventListener('click', () => {
+            modal.remove();
+            onCancel && onCancel();
+        });
+    }
 }
 
 // Функция для показа формы ввода
 function showInputForm(title, message, onSubmit, onCancel) {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <h3>${title}</h3>
-            <p>${message}</p>
-            <input type="text" class="modal-input" placeholder="Введите значение">
-            <div class="modal-buttons">
-                <button class="modal-btn cancel">Отмена</button>
-                <button class="modal-btn confirm">Подтвердить</button>
+    if (tgApp && tgApp.showPopup) {
+        tgApp.showPopup({
+            title: title,
+            message: message,
+            buttons: [
+                {id: 'cancel', type: 'cancel'},
+                {id: 'confirm', type: 'default'}
+            ]
+        }, (buttonId) => {
+            if (buttonId === 'confirm') {
+                onSubmit && onSubmit();
+            } else {
+                onCancel && onCancel();
+            }
+        });
+    } else {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <input type="text" class="modal-input" placeholder="Введите значение">
+                <div class="modal-buttons">
+                    <button class="modal-btn cancel">Отмена</button>
+                    <button class="modal-btn confirm">Подтвердить</button>
+                </div>
             </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    modal.querySelector('.confirm').addEventListener('click', () => {
-        const value = modal.querySelector('.modal-input').value;
-        modal.remove();
-        onSubmit && onSubmit(value);
-    });
-    
-    modal.querySelector('.cancel').addEventListener('click', () => {
-        modal.remove();
-        onCancel && onCancel();
-    });
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.querySelector('.confirm').addEventListener('click', () => {
+            const value = modal.querySelector('.modal-input').value;
+            modal.remove();
+            onSubmit && onSubmit(value);
+        });
+        
+        modal.querySelector('.cancel').addEventListener('click', () => {
+            modal.remove();
+            onCancel && onCancel();
+        });
+    }
 }
 
 // Функция для переключения секций
@@ -218,9 +249,7 @@ function buyNFT(button) {
     const name = item.querySelector('.market-name').textContent;
     const price = item.querySelector('.market-price').textContent;
     
-    // Показываем подтверждение
     showConfirmation(`Вы уверены, что хотите купить "${name}" за ${price}?`, () => {
-        // Здесь будет логика покупки
         showNotification(`Поздравляем! Вы приобрели "${name}" за ${price}`, 'success');
     });
 }
@@ -233,9 +262,7 @@ function placeBid(button) {
     const name = item.querySelector('.auction-name').textContent;
     const currentBid = item.querySelector('.bid-amount').textContent;
     
-    // Показываем форму для ввода ставки
     showInputForm('Сделать ставку', `Текущая ставка: ${currentBid}`, (value) => {
-        // Здесь будет логика размещения ставки
         showNotification(`Ваша ставка на "${name}" принята!`, 'success');
     });
 }
