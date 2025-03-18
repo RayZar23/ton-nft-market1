@@ -595,13 +595,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Инициализация графика при загрузке страницы, если активна секция кошелька
     if (document.getElementById('wallet-section').classList.contains('active')) {
-        // Загружаем скрипт Chart.js динамически
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-        script.onload = function() {
-            initChart();
-        };
-        document.head.appendChild(script);
+        initChart();
+    }
+    
+    // Добавляем обработчики для кнопок покупки
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            buyNFT(this);
+        });
+    });
+    
+    // Добавляем обработчики для кнопок ставок
+    document.querySelectorAll('.bid-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            placeBid(this);
+        });
+    });
+    
+    // Добавляем обработчик для формы создания NFT
+    const createNftForm = document.querySelector('.add-nft-form');
+    if (createNftForm) {
+        createNftForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            createNFT(this);
+        });
     }
 });
 
